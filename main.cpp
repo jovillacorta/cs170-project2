@@ -61,34 +61,6 @@ void normalize (double (&dataset)[2048][64], int numFeatures, int numInstances) 
 
 }
 
-int nearestNeighbor (double dataset, int instIndex, vector<int> featureSubset, int numInstances) {
-
-	int nearestIndex = 0;
-	double tempDistance = 0
-	double nearestDistance = numeric_limits<double>::max();
-
-	for (int i = 0; i < numInstances; i ++){
-
-		tempDistance = 0;
-
-		if (i != instance){
-
-			for (int j = 0; j < featureSubset.size(); j++){
-				tempDistance += pow((dataset[i][featureSubset.at(j)] - dataset[instIndex][featureSubset.at(j)]), 2);
-			}
-
-			tempDistance = sqrt(tempDistance);
-
-			if (tempDistance < nearestDistance){
-				nearestIndex = i;
-				nearestDistance = tempDistance;
-			}
-		}
-	}
-
-	return nearestIndex;
-}
-
 int main () {
 
 	double dataArray[2048][64];
