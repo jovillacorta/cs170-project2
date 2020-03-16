@@ -11,6 +11,7 @@ using namespace std;
 
 void normalize (double (&dataset)[2048][64], int numFeatures, int numInstances) {
 // This function normalizes the data for us.
+// returns: nothing -- our dataset is passed by reference and changed
 // Normalized Data:  X = ( X-MEAN ) / STANDARD DEVIATION
 
 	cout << "This dataset has " << numFeatures - 1 << " features (not including the class attribute), with "
@@ -61,12 +62,16 @@ void normalize (double (&dataset)[2048][64], int numFeatures, int numInstances) 
 
 }
 
-int nearestNeighbor (double dataset[2048][64], int instIndex, vector<int> featureSubset, int numInstances) {
+double nearestNeighbor (double dataset[2048][64], int instIndex, vector<int> featureSubset, int numInstances) {
+//  This function finds the nearest neighbor of an instance given a featureSubset
+//	returns: classification of nearest neighbor
 
 	int nearestIndex = 0;
 	double tempDistance = 0;
 	double nearestDistance = numeric_limits<double>::max();
 
+// loop through rows and to find row with smallest distance
+// nearest distance is the MINIMUM of distances (given the feature subset)
 	for (int i = 0; i < numInstances; i ++){
 
 		tempDistance = 0;
@@ -86,8 +91,28 @@ int nearestNeighbor (double dataset[2048][64], int instIndex, vector<int> featur
 		}
 	}
 
-	return nearestIndex;
+	return dataset[nearestIndex][0];
 }
+
+double leaveOneOut (double dataset[2048][64], vector<int> featureSubset, int numInstances){
+// This function is our leave one out algorithm 
+// returns: accuracy
+
+	int numCorrectPredict;
+
+	for (int i = 0; i < numInstances; i++) {
+
+		double prediction = nearestNeighbor(dataset, i, featureSubset, numInstances);
+
+		if (dataset[i][0] == prediction){
+			numCorrectPredict++;
+		}
+	}
+
+	return (numCorrectPredict/numInstances) * 100;
+}
+
+
 
 
 int main () {
