@@ -9,6 +9,19 @@
 
 using namespace std;
 
+void printSubset (vector<int> subset){
+// helper function to print our feature subsets
+// returns: void
+
+	cout << "{";
+	for (int i =0; i < subset.size(); i++){
+		cout << subset.at(i);
+		if (i != subset.size() - 1){
+			cout << ", ";
+		}
+	}
+	cout << "}";
+}
 
 void normalize (double (&dataset)[2048][64], int numInstances, int numFeatures) {
 // This function normalizes the data for us.
@@ -117,10 +130,12 @@ double leaveOneOut (double dataset[2048][64], vector<int> featureSubset, int num
 
 void forwards (double dataset[2048][64], int numInstances, int numFeatures){
 // This function performs a forwardSelection greedy search
-// returns: feature subset with highest accuracy
+// returns: nothing (prints subset with greatest accuracy)
 	cout << endl;
 	cout << "Beginning search." << endl;
-	vector<int> featureSubset;
+
+	// hold our selected feature subset and solution subset
+	vector<int> selectedSubset;
 	vector<int> solution;
 
 	double tempAccuracy;
@@ -137,71 +152,63 @@ void forwards (double dataset[2048][64], int numInstances, int numFeatures){
 		cout << endl;
 		for (int j = 1; j < numFeatures; j++){
 			//cout << endl;
-			if (!(find(featureSubset.begin(), featureSubset.end(), j) != featureSubset.end())){
-				vector<int> temp = featureSubset;
+			if (!(find(selectedSubset.begin(), selectedSubset.end(), j) != selectedSubset.end())){
+				vector<int> temp = selectedSubset;
 				temp.push_back(j);
 
 				tempAccuracy = leaveOneOut(dataset, temp, numInstances);
 
 				// print statement
-				cout << "		Using feature(s) {";
-				for (int k =0; k < temp.size(); k++){
-					cout << temp.at(k);
-					if (k != temp.size() - 1){
-						cout << ", ";
-					}
-				}
-				cout << "} accuracy is " << tempAccuracy << "%" << endl;
+				cout << "		Using feature(s) ";
+				printSubset(temp);
+				cout << " accuracy is " << tempAccuracy << "%" << endl;
 
 				// max accuracy amongst particular set of subsets
 				if (tempAccuracy > maxAccuracy){
 					maxAccuracy = tempAccuracy;
 					maxIndex = j;
-				}
 
-				// max accuracy of ALL subsets
-				if (tempAccuracy > maxMaxAccuracy){
-					maxMaxAccuracy = tempAccuracy;
-					foundSolutionSubset = true;
+					// max accuracy of ALL subsets
+					if (tempAccuracy > maxMaxAccuracy){
+						maxMaxAccuracy = tempAccuracy;
+						foundSolutionSubset = true;
+					}
 				}
 
 			}
 
 		}
-
 		cout << endl;
-		if (!foundSolutionSubset){
-			cout << "(Warning: Accuracy has decreased! Continuing search in case of local maxima)" << endl;
-		}
-		else{
+		selectedSubset.push_back(maxIndex);
+
+		if (foundSolutionSubset){
 			solution.push_back(maxIndex);
 		}
-
-		featureSubset.push_back(maxIndex);
-		cout << "Feature set {";
-		for (int k =0; k < featureSubset.size(); k++){
-			cout << featureSubset.at(k);
-			if (k != featureSubset.size() - 1){
-				cout << ", ";
+		else{
+			if (selectedSubset.size() != numFeatures - 1){
+			cout << "(Warning: Accuracy has decreased! Continuing search in case of local maxima)" << endl;
 			}
 		}
-		cout << "} was best, accuracy is, " << maxAccuracy << "%" << endl;
+
+
+		if (selectedSubset.size() != numFeatures - 1){
+			cout << "Feature set ";
+			printSubset(selectedSubset);
+			cout << " was best, accuracy is, " << maxAccuracy << "%" << endl;
+		}
 	}
 
 	cout << endl;
 	cout << "Finished search!! The best feature subset is ";
-		for (int k =0; k < solution.size(); k++){
-		cout << solution.at(k);
-		if (k != solution.size() - 1){
-			cout << ", ";
-		}
-	}
-	
-	cout << "}, which has an accuracy of " << maxMaxAccuracy << "%" << endl;
+	printSubset(solution);
+	cout << ", which has an accuracy of " << maxMaxAccuracy << "%" << endl;
 	cout << endl;
 	//return solution;
 }
 
+void backwards (double dataset[2048][64], int numInstances, int numFeatures){
+	
+}
 
 int main () {
 
@@ -244,7 +251,7 @@ int main () {
 
 		numInstances++;
 	}
-
+	normalize(dataArray, numInstances, numFeatures);
 
 error1:
 		cout << endl;
@@ -252,17 +259,16 @@ error1:
 		cout << endl;
 		cout << "1) Forward Selection" << endl;
 		cout << "2) Backward Selection" << endl;
+		cout << endl;
 
 		cin >> input;
 
 		switch(input)
 		{
 			case 1:	
-				normalize(dataArray, numInstances, numFeatures);
 				forwards(dataArray, numInstances, numFeatures);
 				break;
 			case 2:
-				normalize(dataArray, numFeatures, numInstances);
 				break;
 			default:
 				cout << "Invalid Entry." << endl;
