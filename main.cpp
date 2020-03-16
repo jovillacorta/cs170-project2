@@ -10,7 +10,7 @@
 using namespace std;
 
 
-void normalize (double (&dataset)[2048][64], int numFeatures, int numInstances) {
+void normalize (double (&dataset)[2048][64], int numInstances, int numFeatures) {
 // This function normalizes the data for us.
 // returns: nothing -- our dataset is passed by reference and changed
 // Normalized Data:  X = ( X-MEAN ) / STANDARD DEVIATION
@@ -99,7 +99,7 @@ double leaveOneOut (double dataset[2048][64], vector<int> featureSubset, int num
 // This function is our leave one out algorithm 
 // returns: accuracy
 
-	int numCorrectPredict;
+	int numCorrectPredict = 0;
 
 	for (int i = 0; i < numInstances; i++) {
 
@@ -110,10 +110,12 @@ double leaveOneOut (double dataset[2048][64], vector<int> featureSubset, int num
 		}
 	}
 
-	return (numCorrectPredict/numInstances) * 100;
+//	cout << numCorrectPredict<< endl;
+//	cout << (double(numCorrectPredict)/numInstances * 100) << endl;
+	return (double(numCorrectPredict)/numInstances * 100);
 }
 
-vector<int> forwards (double dataset[2048][64], int numInstances, int numFeatures){
+void forwards (double dataset[2048][64], int numInstances, int numFeatures){
 // This function performs a forwardSelection greedy search
 // returns: feature subset with highest accuracy
 	cout << endl;
@@ -132,9 +134,9 @@ vector<int> forwards (double dataset[2048][64], int numInstances, int numFeature
 		foundSolutionSubset = false;
 		maxAccuracy = 0;
 		maxIndex = 0;
-
+		cout << endl;
 		for (int j = 1; j < numFeatures; j++){
-			cout << endl;
+			//cout << endl;
 			if (!(find(featureSubset.begin(), featureSubset.end(), j) != featureSubset.end())){
 				vector<int> temp = featureSubset;
 				temp.push_back(j);
@@ -167,8 +169,8 @@ vector<int> forwards (double dataset[2048][64], int numInstances, int numFeature
 
 		}
 
+		cout << endl;
 		if (!foundSolutionSubset){
-			cout << endl;
 			cout << "(Warning: Accuracy has decreased! Continuing search in case of local maxima)" << endl;
 		}
 		else{
@@ -186,6 +188,7 @@ vector<int> forwards (double dataset[2048][64], int numInstances, int numFeature
 		cout << "} was best, accuracy is, " << maxAccuracy << "%" << endl;
 	}
 
+	cout << endl;
 	cout << "Finished search!! The best feature subset is ";
 		for (int k =0; k < solution.size(); k++){
 		cout << solution.at(k);
@@ -195,8 +198,8 @@ vector<int> forwards (double dataset[2048][64], int numInstances, int numFeature
 	}
 	
 	cout << "}, which has an accuracy of " << maxMaxAccuracy << "%" << endl;
-	
-	return solution;
+	cout << endl;
+	//return solution;
 }
 
 
@@ -209,6 +212,7 @@ int main () {
 	int numInstances = 0;
 	string line;
 	double word;
+	int input;
 
 	cout << endl;
 	cout << endl;
@@ -241,7 +245,29 @@ int main () {
 		numInstances++;
 	}
 
-	normalize(dataArray, numFeatures, numInstances);
+
+error1:
+		cout << endl;
+		cout << "Type the number of the algorithm you want to run" << endl;
+		cout << endl;
+		cout << "1) Forward Selection" << endl;
+		cout << "2) Backward Selection" << endl;
+
+		cin >> input;
+
+		switch(input)
+		{
+			case 1:	
+				normalize(dataArray, numInstances, numFeatures);
+				forwards(dataArray, numInstances, numFeatures);
+				break;
+			case 2:
+				normalize(dataArray, numFeatures, numInstances);
+				break;
+			default:
+				cout << "Invalid Entry." << endl;
+				goto error1;
+		}
 
 // cout << numInstances << endl;
 // cout << numFeatures <<endl;
