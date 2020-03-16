@@ -5,6 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <algorithm>
 
 using namespace std;
 
@@ -112,7 +113,91 @@ double leaveOneOut (double dataset[2048][64], vector<int> featureSubset, int num
 	return (numCorrectPredict/numInstances) * 100;
 }
 
+vector<int> forwards (double dataset[2048][64], int numInstances, int numFeatures){
+// This function performs a forwardSelection greedy search
+// returns: feature subset with highest accuracy
+	cout << endl;
+	cout << "Beginning search." << endl;
+	vector<int> featureSubset;
+	vector<int> solution;
 
+	double tempAccuracy;
+	double maxAccuracy;
+	double maxMaxAccuracy = 0;
+	bool foundSolutionSubset;
+
+	int maxIndex;
+
+	for (int i = 1; i < numFeatures; i++){
+		foundSolutionSubset = false;
+		maxAccuracy = 0;
+		maxIndex = 0;
+
+		for (int j = 1; j < numFeatures; j++){
+			cout << endl;
+			if (!(find(featureSubset.begin(), featureSubset.end(), j) != featureSubset.end())){
+				vector<int> temp = featureSubset;
+				temp.push_back(j);
+
+				tempAccuracy = leaveOneOut(dataset, temp, numInstances);
+
+				// print statement
+				cout << "		Using feature(s) {";
+				for (int k =0; k < temp.size(); k++){
+					cout << temp.at(k);
+					if (k != temp.size() - 1){
+						cout << ", ";
+					}
+				}
+				cout << "} accuracy is " << tempAccuracy << "%" << endl;
+
+				// max accuracy amongst particular set of subsets
+				if (tempAccuracy > maxAccuracy){
+					maxAccuracy = tempAccuracy;
+					maxIndex = j;
+				}
+
+				// max accuracy of ALL subsets
+				if (tempAccuracy > maxMaxAccuracy){
+					maxMaxAccuracy = tempAccuracy;
+					foundSolutionSubset = true;
+				}
+
+			}
+
+		}
+
+		if (!foundSolutionSubset){
+			cout << endl;
+			cout << "(Warning: Accuracy has decreased! Continuing search in case of local maxima)" << endl;
+		}
+		else{
+			solution.push_back(maxIndex);
+		}
+
+		featureSubset.push_back(maxIndex);
+		cout << "Feature set {";
+		for (int k =0; k < featureSubset.size(); k++){
+			cout << featureSubset.at(k);
+			if (k != featureSubset.size() - 1){
+				cout << ", ";
+			}
+		}
+		cout << "} was best, accuracy is, " << maxAccuracy << "%" << endl;
+	}
+
+	cout << "Finished search!! The best feature subset is ";
+		for (int k =0; k < solution.size(); k++){
+		cout << solution.at(k);
+		if (k != solution.size() - 1){
+			cout << ", ";
+		}
+	}
+	
+	cout << "}, which has an accuracy of " << maxMaxAccuracy << "%" << endl;
+	
+	return solution;
+}
 
 
 int main () {
