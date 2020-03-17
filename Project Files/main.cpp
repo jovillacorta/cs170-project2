@@ -131,7 +131,7 @@ double leaveOneOut (double dataset[MAX_INSTANCES][MAX_FEATURES], vector<int> fea
 	return (double(numCorrectPredict)/numInstances * 100);
 }
 
-void forwards (double dataset[MAX_INSTANCES][MAX_FEATURES], int numInstances, int numFeatures){
+vector<int> forwards (double dataset[MAX_INSTANCES][MAX_FEATURES], int numInstances, int numFeatures){
 // This function performs a forwardSelection greedy search
 // returns: nothing (prints subset with greatest accuracy)
 	cout << endl;
@@ -201,15 +201,15 @@ void forwards (double dataset[MAX_INSTANCES][MAX_FEATURES], int numInstances, in
 		}
 	}
 
-	cout << endl;
-	cout << "Finished search!! The best feature subset is ";
-	printSubset(solution);
-	cout << ", which has an accuracy of " << maxMaxAccuracy << "%" << endl;
-	cout << endl;
-	//return solution;
+	// cout << endl;
+	// cout << "Finished search!! The best feature subset is ";
+	// printSubset(solution);
+	// cout << ", which has an accuracy of " << maxMaxAccuracy << "%" << endl;
+	// cout << endl;
+	return solution;
 }
 
-void backwards (double dataset[MAX_INSTANCES][MAX_FEATURES], int numInstances, int numFeatures){
+vector<int> backwards (double dataset[MAX_INSTANCES][MAX_FEATURES], int numInstances, int numFeatures){
 // This function performs a forwardSelection greedy search
 // returns: nothing (prints subset with greatest accuracy)
 
@@ -284,12 +284,8 @@ void backwards (double dataset[MAX_INSTANCES][MAX_FEATURES], int numInstances, i
 		
 	}
 
-	cout << endl;
-	cout << "Finished search!! The best feature subset is ";
-	printSubset(solution);
-	cout << ", which has an accuracy of " << maxMaxAccuracy << "%" << endl;
-	cout << endl;
-	//return solution;
+
+	return solution;
 }
 
 int main () {
@@ -359,13 +355,25 @@ error1:
 
 		cin >> input;
 
+		vector<int> solution;
+
 		switch(input)
 		{
 			case 1:	
-				forwards(dataArray, numInstances, numFeatures);
+				solution = forwards(dataArray, numInstances, numFeatures);
+					cout << endl;
+					cout << "Finished search!! The best feature subset is ";
+					printSubset(solution);
+					cout << ", which has an accuracy of " << leaveOneOut(dataArray, solution, numInstances) << "%" << endl;
+					cout << endl;
 				break;
 			case 2:
-				backwards(dataArray, numInstances, numFeatures);
+				solution = backwards(dataArray, numInstances, numFeatures);
+					cout << endl;
+					cout << "Finished search!! The best feature subset is ";
+					printSubset(solution);
+					cout << ", which has an accuracy of " << leaveOneOut(dataArray, solution, numInstances) << "%" << endl;
+					cout << endl;
 				break;
 			default:
 				cout << "Invalid Entry." << endl;
